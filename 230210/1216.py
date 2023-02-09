@@ -1,50 +1,51 @@
 import sys
 sys.stdin=open('input.txt', 'rt')
 
-# 회문 구하는 함수
+
 def isPelindrome(s):
-    s = s.rstrip()
     lenS = 0
     for _ in s:
-        lenS +=1
+        lenS += 1
+    for idx in range(lenS // 2):
+        if s[idx] != s[lenS-1-idx]:
+            return 0
+    return 1
 
-    idx = 0
-    while idx<lenS//2 and s[idx] == s[lenS-1-idx]:
-        idx += 1
-
-    if idx == lenS//2:
-        return 1
-    return 0
-
-
-def check(N):
+def check(N, M):
+    maxle = 0
+    sle = 0
     for row in range(N):
-        for st in range(99, -1, -1):
+        for st in range(N-M+1):
             temp = ''
-            for col in range(N):
-                temp += arr[row][st + col]
+            for col in range(M):
+                temp += arr[row][st+col]
             if isPelindrome(temp):
-                # res = temp
-                return temp
+                sle = M
+            if maxle < sle:
+                maxle = sle
 
     for col in range(N):
-        for st in range(99, -1, -1):
+        for st in range(N-M+1):
             temp = ''
-            for row in range(N):
-                temp += arr[st + row][col]
+            for row in range(M):
+                temp += arr[st+row][col]
             if isPelindrome(temp):
-                # res = temp
-                return temp
+                sle = M
+            if maxle < sle:
+                maxle = sle
+    return maxle
 
 
-for _ in range(10):
-    N = int(input())
-    arr = [list(map(str, input().split())) for _ in range(100)]
+for _ in range(1, 10+1):
+    num = int(input())
+    arr = [list(input()) for _ in range(100)]
+    cnt = 0
 
-    print(check(100))
+    for i in range(1, 100+1):
+        M = i
+        c = check(100, M)
+        if c > cnt:
+            cnt = c
 
 
-
-
-
-
+    print(f'#{_} {cnt}')
