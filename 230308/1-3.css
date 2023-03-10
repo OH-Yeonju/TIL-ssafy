@@ -1,0 +1,57 @@
+.board {
+  width: 800px;
+  height: 800px;
+  border: 2px solid black;
+}
+
+.squ {
+  width: 100px;
+  height: 100px;
+}
+
+
+#black {
+  width: 100px;
+  height: 100px;
+  background-color: black;
+  float: left;
+  /* display: table; */
+}
+
+#white {
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  float: left;
+  /* display: table; */
+}
+
+.black_pawn {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  display: none;
+}
+
+.white-queen {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  right: 300px;
+  bottom: 300px;
+}
+
+
+.white-king {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  left: 200px;
+}
+
+.white-rook {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  right: 100px;
+}
