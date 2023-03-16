@@ -1,0 +1,12 @@
+1. id에 대해 내림차순으로 조회
+In [1]: Movie.objects.all().order_by('-id')
+Out[1]: <QuerySet [<Movie: 4번째 영화 - Dune adventure>, <Movie: 3번째 영화 - 007 No Time To Die action>, <Movie: 2번째 영화 - Ron's Gone Wrong action>, <Movie: 1번째 영화 - Venom: Let There Ve Carnage action>]> 
+
+2. 전체 쿼리셋 중 genre가 action인것만 조회
+In [4]: Movie.objects.filter(genre='action')
+Out[4]: <QuerySet [<Movie: 1번째 영화 - Venom: Let There Ve Carnage action>, <Movie: 2번째 영화 - Ron's Gone 
+Wrong action>, <Movie: 3번째 영화 - 007 No Time To Die action>]>
+
+3. model의 전체 쿼리셋 중 title이 e로 끝나는 것만 조회
+In [2]: Movie.objects.filter(title__endswith='e')
+Out[2]: <QuerySet [<Movie: 1번째 영화 - Venom: Let There Ve Carnage action>, <Movie: 3번째 영화 - 007 No Time To Die action>, <Movie: 4번째 영화 - Dune adventure>]>
