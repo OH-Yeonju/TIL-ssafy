@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% block content %}
+<h1>New Post</h1>
+
+{% if request.resolver_match.url_name == 'create' %}
+<form action="{% url 'posts:create' %}" method="POST" class="form" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      Submit
+    </button>
+  {% endbuttons %}
+</form>
+
+{% else %}
+<form action="{% url 'posts:update' post.pk %}" method="POST" class="form" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      Submit
+    </button>
+  {% endbuttons %}
+</form>
+{% endif %}
+{% endblock content %}

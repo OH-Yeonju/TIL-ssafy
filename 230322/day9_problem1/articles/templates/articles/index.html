@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+  <h3>Hello, {{user}}</h3>
+  <form action="{% url 'accounts:logout' %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Logout">
+  </form>
+  <h1>Articles</h1>
+  <a href="">[CREATE]</a>
+{% else %}
+  <a href="{% url 'accounts:login' %}">Login</a>
+  <h1>Articles</h1>
+  <a href="">[새 글을 작성하려면 로그인하세요]</a>
+{% endif %}
+<hr>
+{% endblock content %}
