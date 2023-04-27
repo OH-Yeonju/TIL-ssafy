@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>DETAIL</h2>
+  <h3>{{ article.pk }} 번째 글</h3>
+  <hr>
+  <p>제목 : {{ article.title }}</p>
+  <p>내용 : {{ article.content }}</p>
+  <p>작성시각 : {{ article.created_at }}</p>
+  <p>수정시각 : {{ article.updated_at }}</p>
+  <hr>
+  {% if user == article.user %}
+    <a href="{% url 'articles:update' article.pk %}">[UPDATE]</a>
+    <form action="{% url 'articles:delete' article.pk %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="DELETE">
+    </form>
+  {% endif %}
+  <a href="{% url 'articles:index' %}">[back]</a>
+  <hr>
+  <h4>댓글 목록</h4>
+  <ul>
+    {% for comment in comments %}
+      <li id="comment-list" data-comment-pk="{{comment.pk}}">
+        {{ comment.user }} - {{ comment.content }}
+        {% if user == comment.user %}
+          <form id="form-delete" data-comment-pk="{{comment.pk}}" data-article-pk="{{article.pk}}">
+            {% csrf_token %}
+            <input type="submit" value="DELETE">
+          </form>
+          <button id="comment-update">수정</button>
+        {% endif %}
+      </li>
+    {% empty %}
+      <p>댓글이 없어요..</p>
+    {% endfor %}
+  </ul>
+
+  <hr>
+  {% if request.user.is_authenticated %}
+    <form id="comment-form" data-article-id="{{article.pk}}" data-user-id="{{request.user.pk}}" data-user-username="{{request.user.username}}">
+      {% csrf_token %}
+      {{ comment_form }}
+      <input type="submit">
+    </form>
+  {% else %}
+    <a href="{% url 'accounts:login' %}">[댓글을 작성하려면 로그인하세요.]</a>
+  {% endif %}
+{% endblock content %}
+
+{% block script %}
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const form = document.querySelector('#comment-form')
+    const input = document.querySelector('[name=content]')
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+    const commentDel = document.querySelectorAll('#form-delete')
+
+  
+
+    commentDel.forEach((dBtn)=>{
+    dBtn.addEventListener('submit', function(event) {
+      const articlePk = event.target.dataset.articlePk
+      const commentPk = event.target.dataset.commentPk
+
+      event.preventDefault()
+
+      axios({
+        method:'post',
+        url: `/articles/${articlePk}/comments/${commentPk}/delete/`,
+        headers: {'X-CSRFToken': csrftoken},
+      })
+      .then((res) => {
+        event.target.parentNode.remove()
+        
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    })
+  })
+
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault()
+	// 이곳에 코드를 작성하세요
+      const articleId = event.target.dataset.articleId
+      const userId = event.target.dataset.userId
+      const username = event.target.dataset.userUsername
+      
+
+
+
+
+      let data = new FormData()
+      data.append('content', input.value)
+
+      axios({
+        method:'post',
+        url:`/articles/${articleId}/comments/`,
+        data: data,
+        headers: {'X-CSRFToken': csrftoken},
+      })
+      .then((res) => {
+        const commentList = document.querySelector('ul')
+        const li = document.createElement('li')
+        li.innerText = `${username} - <span>${input.value}</span>`
+
+        li.setAttribute('data-comment-pk', `${res.data.comment_pk}`)
+        const updateButton = document.createElement('button')
+        updateButton.innerText = '수정'
+        // updateButton.setAttribute('id', `${res.data.comment_pk}`)
+
+        const deleteButton = document.createElement('button')
+        deleteButton.innerText = 'DELETE'
+        li.appendChild(deleteButton)
+        li.appendChild(updateButton)
+        commentList.appendChild(li)
+        
+        
+        input.value=''
+        
+
+        updateButton.addEventListener('click', updateToggle)
+      })
+    })
+
+
+    const updateToggle = function (event) {
+      const targetComment = event.target.parentNode
+      const updateInput = document.createElement('input')
+      updateInput.value = targetComment.childNodes[1].innerText
+      updateInput.name = 'content'
+
+      const updateBtn = document.createElement('button')
+      updateBtn.innerText = 'update'
+
+      updateBtn.addEventListener('click', event => {
+        event.preventDefault()
+        const { commentPk } = event.target.parentNode.dataset
+        let data = new FormData()
+        data.append('content', updateInput.value)
+        
+        axios({
+          method: "POST",
+          url: `/articles/{{ article.pk }}/comments/${commentPk}/update/`,
+          data,
+          headers: {'X-CSRFToken': csrftoken}
+        })
+        .then((res) => {
+          console.log(res.data)
+          const {commentPk, articlePk, commentCount} = res.data
+          targetComment.innerText = '{{ request.user.username }} - '
+
+          const span = document.createElement('span')
+          span.innerText = `${updateInput.value} `
+
+          const newDeleteBtn = document.createElement('input')
+            newDeleteBtn.innerHTML = `
+              <form action=/articles/${res.data.articlePk}/comments/${res.data.commentPk}/delete/ method="POST" class="d-inline">
+                {% csrf_token %}
+                <input type="submit" value="DELETE">
+              </form>
+            `
+          const newUpdateBtn = document.createElement('button')
+          newUpdateBtn.innerText = '수정'
+
+
+          newDeleteBtn.setAttribute('data-comment-pk', `${commentPk}`)
+          newDeleteBtn.addEventListener('click', deleteComment)
+          newUpdateBtn.addEventListener('click', updateToggle)
+
+          targetComment.append(span, newDeleteBtn, newUpdateBtn)
+        })
+      })
+
+      targetComment.innerText = ''
+      targetComment.append(updateInput, updateBtn)
+    }
+  </script>
+{% endblock script %}
